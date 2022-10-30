@@ -1,10 +1,10 @@
 {
     "version": 2,
-    "name": "m",
+    "name": "ts-node-server",
     "builds": [
-       { "src": "main.js", "use": "@vercel/node" }
+       { "src": "./dist/main.js", "use": "@vercel/node" }
     ],
     "routes": [
-       { "src": "/(.*)", "dest": "/main.js" }
+       { "src": "/(.*)", "dest": "/dist/main.js" }
     ]
  }
