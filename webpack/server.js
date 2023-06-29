@@ -4,7 +4,7 @@ const { common } = require('./common')
 
 module.exports = {
     entry: {
-        main: './src/main.ts',
+        server: './server/main.ts',
     },
     target: 'node',
     mode: 'development',

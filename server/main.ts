@@ -1,6 +1,6 @@
 import { config } from '@/config'
 import express, { Express, Request, Response } from 'express'
-import routes from '@/routes'
+import routes from '@/routes/index'
 import cors from 'cors'
 
 const app: Express = express()

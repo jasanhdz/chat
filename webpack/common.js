@@ -4,8 +4,10 @@ const common = {
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.jsx'],
         alias: {
-            '@': path.resolve(__dirname, '../src'),
-            '@config': path.resolve(__dirname, '../src/config/index'),
+            '@': path.resolve(__dirname, '../server'),
+            '@config': path.resolve(__dirname, '../server/config/index'),
+            '@routes': path.resolve(__dirname, '../server/routes/index'),
+            'app/': path.resolve(__dirname, '../client'),
         },
     },
     output: {
