@@ -4,7 +4,12 @@ module.exports = {
         './client/**/*.{vue,js,ts,jsx,tsx}',
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                teal: 'var(--teal)',
+                outgoing: 'var(--outgoing-background)'
+            }
+        },
     },
     plugins: [],
 }

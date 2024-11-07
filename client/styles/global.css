@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --outgoing-background:#dcf8c6;
+    --buble-meta: rgba(0, 0, 0, 0.45);
+    --teal: #009688;
+    --gray-700: #4a4a4a;
+  }
+
 body {
     margin: 0;
     background-color: #f6f6f6

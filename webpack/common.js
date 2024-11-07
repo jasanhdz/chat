@@ -7,7 +7,7 @@ module.exports = {
       '@': path.resolve(__dirname, '../server'),
       '@config': path.resolve(__dirname, '../server/config'),
       '@routes': path.resolve(__dirname, '../server/routes'),
-      'app/': path.resolve(__dirname, '../client'),
+      'app': path.resolve(__dirname, '../client'),
       'vue$': 'vue/dist/vue.esm-bundler.js'
     }
   },
