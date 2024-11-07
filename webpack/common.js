@@ -1,21 +1,18 @@
-const path = require('path')
-
-const common = {
-    resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.jsx'],
-        alias: {
-            '@': path.resolve(__dirname, '../server'),
-            '@config': path.resolve(__dirname, '../server/config/index'),
-            '@routes': path.resolve(__dirname, '../server/routes/index'),
-            'app/': path.resolve(__dirname, '../client'),
-        },
-    },
-    output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, '../dist'),
-    },
-}
+const path = require('path');
 
 module.exports = {
-    common,
-}
+  resolve: {
+    extensions: ['.ts', '.js', '.vue'],
+    alias: {
+      '@': path.resolve(__dirname, '../server'),
+      '@config': path.resolve(__dirname, '../server/config'),
+      '@routes': path.resolve(__dirname, '../server/routes'),
+      'app/': path.resolve(__dirname, '../client'),
+      'vue$': 'vue/dist/vue.esm-bundler.js'
+    }
+  },
+  output: {
+    filename: '[name].js',
+    path: path.resolve(__dirname, '../dist')
+  }
+};
