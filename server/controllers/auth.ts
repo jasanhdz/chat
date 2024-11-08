@@ -4,6 +4,7 @@ import { generateJWT } from '@/utils/jwt'
 
 export const createUser = async (req: Request, res: Response) => {
   try {
+    console.log('body:', req.body)
     const { email } = req.body
     const isEmailExist = await User.findOne({ email })
     if (isEmailExist) {

@@ -2,9 +2,9 @@
   <FormContainer title="Registro">
     <form @submit.prevent="handleRegister">
       <InputField
-        label="Usuario"
+        label="Nombre Completo"
         type="text"
-        v-model="form.username"
+        v-model="form.fullName"
         required
       />
       <InputField
@@ -19,8 +19,14 @@
         v-model="form.password"
         required
       />
-      <Button type="submit" variant="secondary">
-        Registrarse
+
+      <div v-if="errorMessage" class="mb-4 text-red-500">
+        {{ errorMessage }}
+      </div>
+
+      <Button type="submit" variant="secondary" :disabled="isLoading" :loading="isLoading">
+        <span v-if="isLoading">Registrando...</span>
+        <span v-else>Registrarse</span>
       </Button>
     </form>
     <template #footer>
@@ -31,10 +37,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
+import { defineComponent, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { FormContainer, InputField, Button } from 'app/components'
+import { FormContainer, InputField, Button } from 'app/components';
+import { RegisterData } from 'app/types/api';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   name: 'RegisterView',
@@ -46,35 +54,48 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const router = useRouter();
+    const toast = useToast();
 
-    const form = reactive({
-      username: '',
+    const form = reactive<RegisterData>({
+      fullName: '',
       email: '',
       password: '',
     });
 
+    const isLoading = ref(false);
+    const errorMessage = ref<string | null>(null);
+
     const handleRegister = async () => {
+      isLoading.value = true;
+      errorMessage.value = null;
+
       try {
         await store.dispatch('auth/register', {
-          username: form.username,
+          fullName: form.fullName,
           email: form.email,
           password: form.password,
         });
+        toast.success('Registro exitoso. Bienvenido!');
         router.push({ name: 'Chat' });
-      } catch (error) {
-        // Manejar errores de registro
-        console.error(error);
+      } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+          errorMessage.value = error.response.data.message;
+          toast.error(error.response.data.message);
+        } else {
+          errorMessage.value = 'Ocurrió un error inesperado.';
+          toast.error('Ocurrió un error inesperado.');
+        }
+      } finally {
+        isLoading.value = false;
       }
     };
 
     return {
       form,
       handleRegister,
+      isLoading,
+      errorMessage,
     };
   },
 });
 </script>
-
-<style scoped>
-/* Estilos específicos del componente */
-</style>
