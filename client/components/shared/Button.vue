@@ -1,11 +1,16 @@
 <template>
-  <button :class="classes" @click="onClick">
-    <slot />
+  <button
+    :type="type"
+    :class="buttonClasses"
+    :disabled="disabled"
+    @click="$emit('click', $event)"
+  >
+    <slot></slot>
   </button>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 
 export default defineComponent({
   name: 'Button',
@@ -16,22 +21,41 @@ export default defineComponent({
     },
     variant: {
       type: String,
-      default: 'primary',
+      default: 'primary', // 'primary', 'secondary', 'danger', etc.
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
-  computed: {
-    classes() {
-      return `btn btn-${this.variant}`;
-    },
-  },
-  methods: {
-    onClick(event: Event) {
-      this.$emit('click', event);
-    },
+  emits: ['click'],
+  setup(props) {
+    const buttonClasses = computed(() => {
+      let classes = 'w-full py-2 rounded text-white focus:outline-none focus:ring';
+      switch (props.variant) {
+        case 'primary':
+          classes += ' bg-blue-500 hover:bg-blue-600';
+          break;
+        case 'secondary':
+          classes += ' bg-green-500 hover:bg-green-600';
+          break;
+        case 'danger':
+          classes += ' bg-red-500 hover:bg-red-600';
+          break;
+        default:
+          classes += ' bg-blue-500 hover:bg-blue-600';
+      }
+
+      if (props.disabled) {
+        classes += ' opacity-50 cursor-not-allowed';
+      }
+
+      return classes;
+    });
+
+    return {
+      buttonClasses,
+    };
   },
 });
 </script>
-
-<style scoped>
-/* Estilos del botón */
-</style>

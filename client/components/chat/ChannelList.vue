@@ -1,41 +1,41 @@
 <template>
   <div class="bg-white overflow-y-auto" style="max-height: calc(100vh - 109px);">
     <Channel
-      v-for="(channel, index) in channels"
-      :key="index"
+      v-for="channel in channels"
+      :key="channel.id"
       :user-name="channel.userName"
       :avatar="channel.avatar"
-      :message="channel.message"
-      :timestamp="channel.timestamp"
+      :message="channel.getRecentMessages(1)[0]?.content || ''"
+      :timestamp="channel.getRecentMessages(1)[0]?.timestamp.getTime() / 1000 || 0"
+      @click="selectChannel(channel.id)"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue'
+import { useStore } from 'vuex';
 import Channel from './Channel.vue';
+import { Channel as ChannelClass } from 'app/models/Channel';
 
 export default defineComponent({
   name: 'ChannelList',
   components: {
     Channel,
   },
-  data() {
+  setup() {
+    const store = useStore()
+    const channels = computed<ChannelClass[]>(() => store.getters['chat/getChannels'])
+
+    const selectChannel = (channelId: string) => {
+      console.log('channelId: ', channelId)
+      store.dispatch('chat/selectChannel', channelId)
+    }
+
     return {
-      channels: [
-        { userName: 'Usuario 1', message: 'Mensaje 1', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-        { userName: 'Usuario 2', message: 'Mensaje 2', avatar: null, timestamp: 1621386636 },
-      ],
-    };
-  },
+      channels,
+      selectChannel
+    }
+  }
 });
 </script>

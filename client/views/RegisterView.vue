@@ -1,40 +1,48 @@
-<!-- client/views/RegisterView.vue -->
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="w-full max-w-md bg-white p-6 rounded shadow-md">
-      <h2 class="text-2xl font-bold mb-6 text-center">Registro</h2>
-      <form @submit.prevent="handleRegister">
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2">Usuario</label>
-          <input v-model="username" type="text" class="w-full px-3 py-2 border rounded" required />
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2">Correo Electrónico</label>
-          <input v-model="email" type="email" class="w-full px-3 py-2 border rounded" required />
-        </div>
-        <div class="mb-6">
-          <label class="block text-gray-700 mb-2">Contraseña</label>
-          <input v-model="password" type="password" class="w-full px-3 py-2 border rounded" required />
-        </div>
-        <button type="submit" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
-          Registrarse
-        </button>
-      </form>
-      <p class="mt-4 text-center">
-        ¿Ya tienes una cuenta?
-        <router-link to="/" class="text-blue-500 hover:underline">Inicia sesión aquí</router-link>
-      </p>
-    </div>
-  </div>
+  <FormContainer title="Registro">
+    <form @submit.prevent="handleRegister">
+      <InputField
+        label="Usuario"
+        type="text"
+        v-model="form.username"
+        required
+      />
+      <InputField
+        label="Correo Electrónico"
+        type="email"
+        v-model="form.email"
+        required
+      />
+      <InputField
+        label="Contraseña"
+        type="password"
+        v-model="form.password"
+        required
+      />
+      <Button type="submit" variant="secondary">
+        Registrarse
+      </Button>
+    </form>
+    <template #footer>
+      ¿Ya tienes una cuenta?
+      <router-link to="/" class="text-blue-500 hover:underline">Inicia sesión aquí</router-link>
+    </template>
+  </FormContainer>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { FormContainer, InputField, Button } from 'app/components'
 
 export default defineComponent({
   name: 'RegisterView',
+  components: {
+    FormContainer,
+    InputField,
+    Button,
+  },
   setup() {
     const store = useStore();
     const router = useRouter();
@@ -60,7 +68,7 @@ export default defineComponent({
     };
 
     return {
-      ...form,
+      form,
       handleRegister,
     };
   },

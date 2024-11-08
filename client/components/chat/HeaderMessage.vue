@@ -1,5 +1,5 @@
 <template>
-  <header class="relative z-10 w-full bg-gray-200 border-l border-gray-300">
+  <header class="relative mb-2 z-10 w-full bg-gray-200 border-l border-gray-300">
     <Wrapper>
       <div class="grid grid-cols-[55px_1fr_80px]">
         <div class="flex items-center">
@@ -7,7 +7,7 @@
           <DefaultAvatar v-else :fill="'#dfe5e7'" />
         </div>
         <div class="flex items-center">
-          {{ currentChannel ? currentChannel.name : 'Jasan' }}
+          {{ currentChannel ? currentChannel.userName : 'Sin Canal' }}
         </div>
         <div class="flex items-center space-x-2">
           <Icon>
@@ -40,15 +40,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
-    const currentChannel = computed(() => {
-      const channelIndex = store.state.UI?.channelIndex ?? 0;
-      const channelList = store.state.channel?.list ?? [];
-      if (channelList.length > channelIndex) {
-        return channelList[channelIndex];
-      } else {
-        return null;
-      }
-    });
+    const currentChannel = computed(() => store.getters['chat/currentChannel']);
 
     return {
       currentChannel,
@@ -56,3 +48,7 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+/* No se requieren estilos adicionales debido al uso de Tailwind CSS */
+</style>

@@ -7,11 +7,10 @@
           <Icon>
             <StickerEmojiIcon width="26" />
           </Icon>
-          <Icon rotate="true">
+          <Icon :class="{ 'icon-rotate': true }">
             <FileUploadIcon width="24" role="Adjuntar" />
           </Icon>
         </div>
-        <!-- Área de texto -->
         <div class="flex-1 mx-2">
           <textarea
             ref="textareaRef"
@@ -40,16 +39,17 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { useStore } from 'vuex';
-import { StickerEmojiIcon, FileUploadIcon, InvoiceTextSendIcon, MicrophoneIcon } from 'mdi-vue3';
+import { StickerEmojiIcon, FileUploadIcon, ArrangeSendBackwardIcon, MicrophoneIcon } from 'mdi-vue3';
 import { Wrapper, Icon } from 'app/components';
 import { useTextarea } from 'app/composables/useTextarea'
+import Message from 'app/models/Message'
 
 export default defineComponent({
   name: 'RichText',
   components: {
     StickerEmojiIcon,
     FileUploadIcon,
-    InvoiceTextSendIcon,
+    ArrangeSendBackwardIcon,
     MicrophoneIcon,
     Wrapper,
     Icon,
@@ -57,44 +57,18 @@ export default defineComponent({
   setup() {
     const store = useStore();
 
-    // Validaciones para acceder al store
-    const channelIndex = computed(() => {
-      return store.state.UI?.channelIndex ?? 0;
-    });
+    const currentChannel = computed(() => store.getters['chat/currentChannel']);
 
-    const channelList = computed(() => {
-      return store.state.channel?.list ?? [];
-    });
-
-    const channel = computed(() => {
-      const index = channelIndex.value;
-      if (channelList.value.length > index) {
-        return channelList.value[index];
-      }
-      return null;
-    });
-
-    const jid = computed(() => {
-      return channel.value?.jid ?? null;
-    });
-
-    // Usar el hook useTextarea
-    const { textareaRef, value, isResize, handleInput, handleKeydown } = useTextarea(5, sendMessage);
-
-    // Función para enviar mensajes
-    function sendMessage(message: string) {
-      if (!jid.value) {
-        console.warn('jid no está disponible.');
+    const sendMessage = (messageContent: string) =>{
+      if (!currentChannel.value) {
+        console.warn('No hay un canal seleccionado')
         return;
       }
 
-      // Crear el mensaje
-      const msg = Message.createTextMessage(jid.value, message);
-
-      // Despachar las acciones al store
-      store.dispatch('addMessage', { index: channelIndex.value, message: msg });
-      store.dispatch('setChannelIndex', channelIndex.value);
+      store.dispatch('chat/sendMessage', messageContent)
     }
+
+    const { textareaRef, value, isResize, handleInput, handleKeydown } = useTextarea(5, sendMessage);
 
     return {
       textareaRef,

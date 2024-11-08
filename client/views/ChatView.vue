@@ -7,21 +7,19 @@
       <ChannelList />
     </div>
     <!-- *** Message *** -->
-    <!-- <ChatEmpty /> -->
-    <div class="relative flex flex-col max-h-screen bg-gray-100">
-      <!-- Fondo de Pantalla -->
-      <div class="absolute inset-0 bg-repeat opacity-6 z-0"
-        :style="{ backgroundImage: `url(${bgChatTileLight})`, opacity: 0.06 }"></div>
-      <!-- Contenido Principal -->
+    <div v-if="currentChannel" class="relative flex flex-col h-screen max-h-screen bg-gray-100">
+      <div class="absolute inset-0 bg-repeat opacity-6 z-0" :style="{ backgroundImage: `url(${bgChatTileLight})`, opacity: 0.06 }"></div>
       <HeaderMessage />
       <MessageList />
       <RichText />
     </div>
+    <ChatEmpty v-else />
   </main>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
+import { useStore } from 'vuex';
 import { HeaderChannel, Search, ChannelList, ChatEmpty, HeaderMessage, MessageList, RichText } from 'app/components'
 import bgChatTileLight from 'app/assets/bg-chat-tile-light.png';
 
@@ -39,8 +37,13 @@ export default defineComponent({
     RichText,
   },
   setup() {
+    const store = useStore();
+
+    const currentChannel = computed(() => store.getters['chat/currentChannel']);
+
     return {
       bgChatTileLight,
+      currentChannel
     };
   },
 });
