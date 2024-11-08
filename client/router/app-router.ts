@@ -1,30 +1,28 @@
-// client/router/app_router.ts
-import { createRouter, createWebHistory } from 'vue-router';
-import store from 'app/store';
+
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import store from 'app/store'
 import {
   LoginView,
   RegisterView,
   ChatView
 } from 'app/views'
 
-const routes = [
+const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Login',
     component: LoginView,
-    meta: { requiresAuth: false },
   },
   {
     path: '/register',
     name: 'Register',
     component: RegisterView,
-    meta: { requiresAuth: false },
   },
   {
     path: '/chat',
     name: 'Chat',
     component: ChatView,
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -34,8 +32,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const isAuthenticated = store.getters['auth/isAuthenticated'];
-  if (to.meta.requiresAuth && !isAuthenticated) {
+
+  if (requiresAuth && !isAuthenticated) {
     next({ name: 'Login' });
   } else {
     next();
