@@ -1,16 +1,21 @@
+// src/models/User.ts
+
 import { model, Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
-export interface IUser extends Document {
+export interface IUser {
   name: string;
   email: string;
   password: string;
   online?: string;
+}
+
+export interface IUserDocument extends IUser, Document {
   uid: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const UserSchema = new Schema<IUser>(
+const UserSchema = new Schema<IUserDocument>(
   {
     name: {
       type: String,
@@ -32,7 +37,7 @@ const UserSchema = new Schema<IUser>(
     online: {
       type: String,
       required: false,
-      default: false,
+      default: "offline",
     },
   },
   {
@@ -41,7 +46,7 @@ const UserSchema = new Schema<IUser>(
     toJSON: {
       virtuals: true,
       transform: function (doc, ret) {
-        ret.uid = ret._id;
+        ret.uid = ret._id.toHexString();
         delete ret._id;
         delete ret.id;
         delete ret.password;
@@ -50,7 +55,11 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-UserSchema.pre<IUser>("save", async function (next) {
+UserSchema.virtual('uid').get(function (this: IUserDocument) {
+  return (this._id as unknown as any).toHexString();
+});
+
+UserSchema.pre<IUserDocument>("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
@@ -70,4 +79,4 @@ UserSchema.methods.comparePassword = async function (
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-export default model<IUser>("User", UserSchema);
+export default model<IUserDocument>("User", UserSchema);

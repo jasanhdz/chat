@@ -8,5 +8,6 @@ const DB_COLLECTION = process.env.DB_COLLECTION || 'chatDB'
 export const config = {
   port: process.env.PORT || '3001',
   dev: process.env.NODE_ENV !== 'production',
-  DB_CNN_STRING: `mongodb+srv://${DB_USER}:${DB_PASS}@cluster0.lriyd47.mongodb.net/${DB_COLLECTION}`
+  DB_CNN_STRING: `mongodb+srv://${DB_USER}:${DB_PASS}@cluster0.lriyd47.mongodb.net/${DB_COLLECTION}`,
+  JWT_KEY: process.env.JWT_KEY || '45j4s2'
 }
