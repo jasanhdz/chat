@@ -9,7 +9,7 @@ const authService = {
    * @param credentials Objeto con email, password y rememberMe
    * @returns Promesa con la respuesta del servidor
    */
-  login(credentials: Credentials & { rememberMe: boolean }): Promise<LoginResponse> {
+  login(credentials: Credentials): Promise<LoginResponse> {
     return apiClient.post<LoginResponse>('/login', credentials).then(response => response.data);
   },
 

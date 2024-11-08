@@ -7,7 +7,7 @@ export interface IUser {
   fullName: string;
   email: string;
   password: string;
-  online?: string;
+  online: boolean;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -35,9 +35,9 @@ const UserSchema = new Schema<IUserDocument>(
       select: false,
     },
     online: {
-      type: String,
+      type: Boolean,
       required: false,
-      default: "offline",
+      default: false,
     },
   },
   {

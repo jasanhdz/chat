@@ -4,17 +4,19 @@ import { Module } from 'vuex';
 import { io, Socket } from 'socket.io-client';
 import { RootState } from '../index'; // Asegúrate de tener esta definición
 
-interface SocketState {
+export interface SocketState {
   socket: Socket | null;
   online: boolean;
 }
 
+const initialState: SocketState = {
+  socket: null,
+  online: false,
+}
+
 const socketModule: Module<SocketState, RootState> = {
   namespaced: true,
-  state: () => ({
-    socket: null,
-    online: false,
-  }),
+  state: initialState,
   mutations: {
     SET_SOCKET(state, socket: Socket) {
       state.socket = socket;
@@ -24,58 +26,53 @@ const socketModule: Module<SocketState, RootState> = {
     },
   },
   actions: {
-    /**
-     * Inicializa la conexión de Socket.io
-     * @param commit - Método para mutar el estado
-     * @param serverPath - URL del servidor de Socket.io
-     */
-    initializeSocket({ commit, state }, serverPath: string) {
+    initializeSocket({ commit, state }, token: string) {
       if (state.socket) {
         state.socket.disconnect();
       }
-
-      const socket = io(serverPath, { transports: ['websocket'] });
-
+  
+      const socket = io('http://localhost:3001', {
+        transports: ['websocket'],
+        auth: {
+          token, // Pasamos el token para la autenticación en el servidor
+        },
+      });
+  
       commit('SET_SOCKET', socket);
-
+  
       // Escuchar eventos de conexión y desconexión
       socket.on('connect', () => {
-        console.log('Cliente conectado');
+        console.log('Cliente conectado al socket');
         commit('SET_ONLINE_STATUS', true);
       });
-
+  
       socket.on('disconnect', () => {
-        console.log('Cliente desconectado');
+        console.log('Cliente desconectado del socket');
         commit('SET_ONLINE_STATUS', false);
       });
-
-      // Puedes agregar más listeners aquí según tus necesidades
+  
+      // Manejar errores de conexión
+      socket.on('connect_error', (err) => {
+        console.error('Error de conexión de socket:', err.message);
+      });
     },
-    /**
-     * Emite un evento al servidor de Socket.io
-     * @param state - Estado del módulo
-     * @param payload - Objeto que contiene el nombre del evento y los datos
-     */
+    disconnectSocket({ state, commit }) {
+      if (state.socket) {
+        state.socket.disconnect();
+        commit('SET_SOCKET', null);
+        commit('SET_ONLINE_STATUS', false);
+      }
+    },
     emitEvent({ state }, payload: { event: string; data: any }) {
       if (state.socket) {
         state.socket.emit(payload.event, payload.data);
       }
     },
-    /**
-     * Escucha un evento desde el servidor de Socket.io
-     * @param state - Estado del módulo
-     * @param payload - Objeto que contiene el nombre del evento y la función callback
-     */
     listenEvent({ state }, payload: { event: string; callback: (data: any) => void }) {
       if (state.socket) {
         state.socket.on(payload.event, payload.callback);
       }
     },
-    /**
-     * Remueve un listener de un evento específico
-     * @param state - Estado del módulo
-     * @param payload - Objeto que contiene el nombre del evento y la función callback
-     */
     removeListener({ state }, payload: { event: string; callback: (data: any) => void }) {
       if (state.socket) {
         state.socket.off(payload.event, payload.callback);

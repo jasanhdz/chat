@@ -1,5 +1,5 @@
 import { config } from '@/config'
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 export const generateJWT = (uid?: string) => {
   return new Promise((resolve, reject) => {
@@ -17,4 +17,14 @@ export const generateJWT = (uid?: string) => {
     })
 
   })
+}
+
+export const checkJWT = (token: string) => {
+  try {
+    const { uid } = jwt.verify(token, config.JWT_KEY) as JwtPayload
+
+    return [true, uid]
+  } catch (error) {
+    return [false, null]
+  }
 }

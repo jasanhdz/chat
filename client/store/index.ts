@@ -1,12 +1,12 @@
 import { createStore } from 'vuex';
-import auth from './modules/auth';
-import socket from './modules/socket'
-import chat from './modules/chat';
+import auth, { AuthState } from './modules/auth';
+import socket, { SocketState } from './modules/socket'
+import chat, { ChatState } from './modules/chat';
 
 export interface RootState {
-  auth: any;
-  socket: any;
-  chat: any;
+  auth: AuthState;
+  socket: SocketState;
+  chat: ChatState;
 }
 
 const store = createStore<RootState>({
