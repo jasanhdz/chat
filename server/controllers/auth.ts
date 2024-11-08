@@ -80,9 +80,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 }
 
 export const renewToken = async (req: Request, res: Response) => {
+  const uid = req.uid
+  const token = await generateJWT(uid)
+  const user = await User.findById(uid)
+
   res.json({
     success: true,
-    message: 'renewToken'
+    token,
+    user
   })
 }
 
