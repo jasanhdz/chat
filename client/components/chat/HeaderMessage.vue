@@ -48,7 +48,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-/* No se requieren estilos adicionales debido al uso de Tailwind CSS */
-</style>

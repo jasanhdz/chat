@@ -9,7 +9,7 @@ import 'vue-toastification/dist/index.css';
 
 const app = createApp(App);
 
-const initializeAuth = async () => {
+const initializeApp = async () => {
   const token = localStorage.getItem('token');
   if (token) {
     try {
@@ -18,9 +18,13 @@ const initializeAuth = async () => {
       console.error('Error al renovar el token:', error);
     }
   }
+
+  // Inicializar la conexión de Socket.io
+  const socketServerPath = 'http://localhost:3001';
+  store.dispatch('socket/initializeSocket', socketServerPath);
 };
 
-initializeAuth().then(() => {
+initializeApp().then(() => {
   app.use(store);
   app.use(router);
   app.use(Toast, {

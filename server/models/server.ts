@@ -17,11 +17,19 @@ class Server {
     this.app = express();
     this.port = config.port;
     this.server = createServer(this.app)
-    this.io = new SocketIO(this.server)
+    this.io = new SocketIO(this.server, {
+      cors: {
+        origin: 'http://localhost:3000', // Cambia según el origen de tu frontend
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-token'],
+        credentials: true,
+      },
+    })
 
     this.initDB()
     this.middlewares()
     this.routes()
+    this.socketsInit()
     
   }
 

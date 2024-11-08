@@ -10,6 +10,7 @@ class Sockets {
 
   clientConnect() {
     this.io.on('connection', async (socket) => {
+      console.log('cliente conectado')
       // TODO: validat jwt
 
       // TODO: si el token no es valido, desconectar,
