@@ -38,6 +38,14 @@ const chat: Module<ChatState, any> = {
       }
       state.messages[payload.userId].push(payload.message);
     },
+    UPDATE_USER_ONLINE(state, payload: { userId: string, online: boolean }) {
+      const user = state.users.find(u => u.uid === payload.userId);
+      if (user) {
+        user.setOnline(payload.online);
+      } else {
+        console.warn(`Usuario con ID ${payload.userId} no encontrado en la lista.`);
+      }
+    },
     SET_MESSAGES(state, payload: { userId: string, messages: Message[] }) {
       state.messages[payload.userId] = payload.messages;
     },
@@ -61,17 +69,8 @@ const chat: Module<ChatState, any> = {
       if (!currentUser) return;
       commit('ADD_MESSAGE', { userId: currentUser.uid, message: payload.message });
     },
-    updateUsers({ commit }, users: any[]) { // Cambiar a User[] si es posible
-      const userInstances = users.map(user => new User(
-        user.uid,
-        user.fullName,
-        user.email,
-        user.online,
-        user.createdAt,
-        user.updatedAt,
-        user.avatar,
-      ));
-      commit('SET_USERS', userInstances);
+    updateUsers({ commit }, users: User[]) {
+      commit('SET_USERS', users);
     },
     addUser({ commit }, user: any) { // Cambiar a User si es posible
       const userInstance = new User(
@@ -84,6 +83,9 @@ const chat: Module<ChatState, any> = {
         user.avatar,
       );
       commit('ADD_USER', userInstance);
+    },
+    toggleUserConnected({ commit }, payload: { userId: string, online: boolean }) {
+      commit('UPDATE_USER_ONLINE', payload)
     },
     removeUser({ commit }, uid: string) {
       commit('REMOVE_USER', uid);

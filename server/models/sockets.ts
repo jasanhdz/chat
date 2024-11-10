@@ -1,3 +1,5 @@
+// server/src/sockets/server.ts
+
 import { getMessages, getUsers, saveMessage, userConnected, userDisconnected } from '@/controllers/sockets'
 import { checkJWT } from '@/utils/jwt'
 import { Socket, Server as SocketIO } from 'socket.io'
@@ -18,11 +20,19 @@ class Sockets {
         return;
       }
 
+      // Asignar el uid al socket para futuras referencias
+      (socket as any).uid = uid;
+
       const user = await userConnected(uid)
 
       const users = await getUsers(uid)
-      this.io.emit('user-list', users)
+      socket.emit('user-list', users)
 
+      // Emitir a todos los demás clientes que un nuevo usuario está conectado
+      this.io.emit('newUserConnected', { userId: user?.uid, online: user?.online })
+
+      // Unirse a una sala específica con el uid del usuario
+      socket.join(uid)
 
       socket.on('getMessages', async (data: { userId: string }) => {
         const { userId } = data;
@@ -42,34 +52,34 @@ class Sockets {
         }
       });
 
-        // Manejar el evento 'sendMessage'
-        socket.on('sendMessage', async (data: { to: string, content: string }) => {
-          const { to, content } = data;
-  
-          if (!to || !content) {
-            console.warn(`Datos incompletos para enviar mensaje: to=${to}, content=${content}`);
-            return;
-          }
-  
-          try {
-            // Guardar el mensaje en la base de datos
-            const message = await saveMessage(uid, to, content);
-  
-            // Emitir el mensaje al destinatario si está conectado
-            const targetSocket = Array.from(this.io.sockets.sockets.values()).find(s => s.handshake.auth.uid === to);
-            if (targetSocket) {
-              targetSocket.emit('receiveMessage', { from: uid, message });
-            }
-  
-            // Emitir el mensaje al remitente para actualizar su estado local
-            socket.emit('receiveMessage', { from: uid, message });
-          } catch (error) {
-            console.error(`Error al enviar mensaje de ${uid} a ${to}:`, error);
-          }
-        });
+      // Manejar el evento 'sendMessage'
+      socket.on('sendMessage', async (data: { to: string, content: string }) => {
+        const { to, content } = data;
+
+        if (!to || !content) {
+          console.warn(`Datos incompletos para enviar mensaje: to=${to}, content=${content}`);
+          return;
+        }
+
+        try {
+          // Guardar el mensaje en la base de datos
+          const message = await saveMessage(uid, to, content);
+
+          // Emitir el mensaje al destinatario si está conectado
+          // Utilizando salas, emitimos a la sala del destinatario
+          this.io.to(to).emit('receiveMessage', { fromMe: false, message });
+
+          // Emitir el mensaje al remitente para actualizar su estado local
+          socket.emit('receiveMessage', { fromMe: true, uid, message });
+        } catch (error) {
+          console.error(`Error al enviar mensaje de ${uid} a ${to}:`, error);
+        }
+      });
 
       socket.on('disconnect', async () => {
-        userDisconnected(uid)
+        await userDisconnected(uid)
+        // Emitir a todos los demás clientes que un usuario se ha desconectado
+        this.io.emit('userDisconnected', { userId: uid, online: false })
       })
     })
   }
