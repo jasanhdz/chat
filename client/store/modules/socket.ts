@@ -1,8 +1,9 @@
-// src/store/modules/socket.ts
+// client/src/store/modules/socket.ts
 
 import { Module } from 'vuex';
 import { io, Socket } from 'socket.io-client';
-import { RootState } from '../index'; // Asegúrate de tener esta definición
+import { RootState } from '../index';
+import Message from 'app/models/Message';
 
 export interface SocketState {
   socket: Socket | null;
@@ -26,34 +27,79 @@ const socketModule: Module<SocketState, RootState> = {
     },
   },
   actions: {
-    initializeSocket({ commit, state }, token: string) {
-      if (state.socket) {
+    initializeSocket({ commit, dispatch, state }, token: string) {
+      if (state.socket) { // Asegúrate de acceder correctamente al estado
         state.socket.disconnect();
       }
-  
-      const socket = io('http://localhost:3001', {
+
+      const socket = io('http://localhost:3001', { // Cambia la URL según tu configuración
         transports: ['websocket'],
         auth: {
-          token, // Pasamos el token para la autenticación en el servidor
+          token, // Token JWT para autenticación
         },
       });
-  
+
       commit('SET_SOCKET', socket);
-  
+
       // Escuchar eventos de conexión y desconexión
       socket.on('connect', () => {
-        console.log('Cliente conectado al socket');
         commit('SET_ONLINE_STATUS', true);
       });
-  
+
       socket.on('disconnect', () => {
-        console.log('Cliente desconectado del socket');
         commit('SET_ONLINE_STATUS', false);
       });
-  
+
       // Manejar errores de conexión
       socket.on('connect_error', (err) => {
         console.error('Error de conexión de socket:', err.message);
+      });
+
+      // Escuchar el evento 'user-list' y actualizar la lista de usuarios en el módulo de chat
+      socket.on('user-list', (users: any[]) => { // Cambiar any[] a User[] si es posible
+        dispatch('chat/updateUsers', users, { root: true });
+      });
+
+      // Escuchar cuando un nuevo usuario se conecta
+      socket.on('newUserConnected', (user: any) => { // Cambiar any a User si es posible
+        dispatch('chat/addUser', user, { root: true });
+      });
+
+      // Escuchar cuando un usuario se desconecta
+      socket.on('userDisconnected', ({ uid }: { uid: string }) => {
+        dispatch('chat/removeUser', uid, { root: true });
+      });
+
+      // Escuchar mensajes recibidos
+      socket.on('receiveMessage', (payload: { from: string, message: any }) => { // Cambiar any a Message si es posible
+        const message = new Message(
+          payload?.message?.uid,
+          payload?.message?.to?.fullName,
+          payload?.message?.content,
+          new Date(payload?.message?.timestamp),
+          payload?.message?.messageType,
+          payload?.message?.uid !== payload?.from,
+        )
+        dispatch('chat/receiveMessage', {
+          from: payload.from,
+          message: message,
+        }, { root: true });
+      });
+
+      // Escuchar cuando se reciben mensajes específicos después de solicitar 'getMessages'
+      socket.on('messages', (payload: { userId: string, messages: any[] }) => { // Cambiar any[] a Message[] si es posible
+        const messages = payload.messages.map((item) => new Message(
+          item.id,
+          item.from,
+          item.content,
+          new Date(item.timestamp),
+          item.messageType,
+          item.to === payload.userId
+        ))
+        dispatch('chat/setMessages', {
+          userId: payload.userId,
+          messages: messages,
+        }, { root: true });
       });
     },
     disconnectSocket({ state, commit }) {
@@ -63,9 +109,18 @@ const socketModule: Module<SocketState, RootState> = {
         commit('SET_ONLINE_STATUS', false);
       }
     },
-    emitEvent({ state }, payload: { event: string; data: any }) {
+    /**
+     * Emite un evento al servidor, opcionalmente con un callback para manejar la respuesta.
+     * @param payload - Objeto que contiene el evento y los datos.
+     * @param callback - Función opcional para manejar la respuesta del servidor.
+     */
+    emitEvent({ state }, payload: { event: string; data: any }, callback?: Function) {
       if (state.socket) {
-        state.socket.emit(payload.event, payload.data);
+        if (callback) {
+          state.socket.emit(payload.event, payload.data, callback);
+        } else {
+          state.socket.emit(payload.event, payload.data);
+        }
       }
     },
     listenEvent({ state }, payload: { event: string; callback: (data: any) => void }) {
@@ -87,6 +142,6 @@ const socketModule: Module<SocketState, RootState> = {
       return state.socket;
     },
   },
-};
+}
 
 export default socketModule;

@@ -42,7 +42,7 @@ import { useStore } from 'vuex';
 import { StickerEmojiIcon, FileUploadIcon, ArrangeSendBackwardIcon, MicrophoneIcon } from 'mdi-vue3';
 import { Wrapper, Icon } from 'app/components';
 import { useTextarea } from 'app/composables/useTextarea'
-import Message from 'app/models/Message'
+import User from 'app/models/User'
 
 export default defineComponent({
   name: 'RichText',
@@ -57,10 +57,10 @@ export default defineComponent({
   setup() {
     const store = useStore();
 
-    const currentChannel = computed(() => store.getters['chat/currentChannel']);
+    const currentUser = computed<User | null>(() => store.getters['chat/currentUser']);
 
     const sendMessage = (messageContent: string) =>{
-      if (!currentChannel.value) {
+      if (!currentUser.value) {
         console.warn('No hay un canal seleccionado')
         return;
       }

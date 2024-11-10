@@ -3,11 +3,11 @@
     <Wrapper>
       <div class="grid grid-cols-[55px_1fr_80px]">
         <div class="flex items-center">
-          <Avatar v-if="currentChannel && currentChannel.avatar" :avatar="currentChannel.avatar" />
+          <Avatar v-if="user && user.avatar" :avatar="user.avatar" />
           <DefaultAvatar v-else :fill="'#dfe5e7'" />
         </div>
         <div class="flex items-center">
-          {{ currentChannel ? currentChannel.userName : 'Sin Canal' }}
+          {{ user ? user.fullName : 'Sin Usuario' }}
         </div>
         <div class="flex items-center space-x-2">
           <Icon>
@@ -27,6 +27,7 @@ import { defineComponent, computed } from 'vue';
 import { useStore } from 'vuex';
 import { Wrapper, Avatar, DefaultAvatar, Icon } from 'app/components';
 import { MagnifyIcon, DotsVerticalIcon } from 'mdi-vue3';
+import User from 'app/models/User';
 
 export default defineComponent({
   name: 'HeaderMessage',
@@ -40,10 +41,10 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
-    const currentChannel = computed(() => store.getters['chat/currentChannel']);
+    const user = computed<User | null>(() => store.getters['chat/currentUser']);
 
     return {
-      currentChannel,
+      user,
     };
   },
 });

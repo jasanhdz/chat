@@ -3,7 +3,7 @@
 import { Module } from 'vuex';
 import authService from 'app/services/auth'; // Importa tus servicios de autenticación
 import { RootState } from '../index';
-import { Credentials } from 'app/types';
+import { Credentials, RegisterData } from 'app/types';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -31,6 +31,16 @@ const authModule: Module<AuthState, RootState> = {
     },
   },
   actions: {
+    async register({ commit }, credentials: RegisterData) {
+      try {
+        const response = await authService.register(credentials)
+        const { user, token } = response
+        localStorage.setItem('token', token);
+        commit('SET_AUTH', { user, token });
+      } catch (error) {
+        throw error;
+      }
+    },
     async login({ commit }, credentials: Credentials) {
       try {
         const response = await authService.login(credentials);

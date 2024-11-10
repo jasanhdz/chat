@@ -2,12 +2,12 @@
   <div class="bg-white overflow-y-auto" style="max-height: calc(100vh - 109px);">
     <Channel
       v-for="channel in channels"
-      :key="channel.id"
+      :key="channel.id || ''"
       :user-name="channel.userName"
-      :avatar="channel.avatar"
+      :avatar="channel.avatar || ''"
       :message="channel.getRecentMessages(1)[0]?.content || ''"
       :timestamp="channel.getRecentMessages(1)[0]?.timestamp.getTime() / 1000 || 0"
-      @click="selectChannel(channel.id)"
+      @click="selectChannel(channel.id ?? '')"
     />
   </div>
 </template>
@@ -16,7 +16,7 @@
 import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex';
 import Channel from './Channel.vue';
-import { Channel as ChannelClass } from 'app/models/Channel';
+import ChannelClass from 'app/models/Channel';
 
 export default defineComponent({
   name: 'ChannelList',
@@ -28,7 +28,6 @@ export default defineComponent({
     const channels = computed<ChannelClass[]>(() => store.getters['chat/getChannels'])
 
     const selectChannel = (channelId: string) => {
-      console.log('channelId: ', channelId)
       store.dispatch('chat/selectChannel', channelId)
     }
 

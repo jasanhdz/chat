@@ -39,7 +39,7 @@ export default defineComponent({
       default: 'Mensaje',
     },
     avatar: {
-      type: String,
+      type: [String],
       default: '',
     },
     timestamp: {

@@ -1,6 +1,6 @@
 type MessageType = 'text' | 'image'
 
-class Message {
+class MessageClass {
   id: string;
   author: string;
   content: string;
@@ -8,7 +8,14 @@ class Message {
   messageType: MessageType;
   fromMe: boolean
 
-  constructor(id: string, author: string, content: string, timestamp: Date, messageType: MessageType = 'text', fromMe: boolean = false) {
+  constructor(
+    id: string, 
+    author: string, 
+    content: string, 
+    timestamp: Date,
+    messageType: MessageType = 'text',
+    fromMe: boolean = false
+  ) {
     this.id = id;
     this.author = author;
     this.content = content;
@@ -27,4 +34,19 @@ class Message {
   }
 }
 
-export default Message;
+export default MessageClass;
+
+// client/src/models/Message.ts
+export interface Message {
+  id: string;
+  from: string; // UID del remitente
+  to: string;   // UID del destinatario
+  content: string;
+  timestamp: Date;
+  messageType: MessageType;
+  isRead: boolean;
+  imageMessage?: {
+    jpegThumbnail?: string;
+  };
+  fromMe: boolean;
+}
